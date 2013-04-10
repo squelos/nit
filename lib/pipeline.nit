@@ -68,6 +68,35 @@ redef interface Collection[E]
 		return new PipeUniq[E](self)
 	end
 
+
+	# Returns the minimum value of the collection
+	# Important : Requires the collection to be Comparable, as it uses '<'
+	fun min: E
+	do
+		assert self isa Collection[Comparable]
+		var minimum = self.first
+		
+		for x in self do
+			if x < minimum then minimum = x
+		end
+
+		return minimum
+	end
+	
+
+	# Returns the maximum value of the collection
+	# Important : Requires the collection to be Comparable, as it uses '>'
+	fun max: E
+	do
+		assert self isa Collection[Comparable]
+		var maximum = self.first
+		for x in self do
+			if x > maximum then maximum = x
+		end
+		return maximum
+	end
+
+
 	# Filter: reject continuous sequences of duplicates
 	#
 	# Important: rely on `==`.
@@ -353,6 +382,7 @@ private class PipeTail[E]
 		return lasts.iterator
 	end
 end
+
 
 private class PipeSkipTail[E]
 	super NaiveCollection[E]
