@@ -31,18 +31,18 @@ end
 
 class BinaryChildNode[E]
 	super BinaryNode[E]
-	var _leftChild:BinaryChildNode[E]
-	var _rightChild:BinaryChildNode[E]
+	var _leftChild:nullable BinaryChildNode[E]
+	var _rightChild:nullable BinaryChildNode[E]
 	var _parent:BinaryNode[E]
 
-	init withParent(elem:E,parentNode:BinaryNode[E], parentSide:BinaryChildNode[E])
+	init withParent(elem:E,parentNode:BinaryNode[E], parentSide:nullable BinaryChildNode[E])
 	do
 		init(elem)
 		_parent = parentNode
 		parentSide = self
 	end
 
-	init withChildren(elem:E,left:BinaryChildNode[E], right:BinaryChildNode[E], parentNode:BinaryNode[E], parentSide:BinaryChildNode[E])
+	init withChildren(elem:E,left:nullable BinaryChildNode[E], right:nullable BinaryChildNode[E], parentNode:BinaryNode[E], parentSide:nullable BinaryChildNode[E])
 	do
 		init(elem)
 		_leftChild = left
@@ -55,7 +55,7 @@ class BinaryChildNode[E]
 
 	#initializes with a left child and a parent
 	# The parentSide arg is set to Self 
-	init withLeft(elem:E,left:BinaryChildNode[E], parentNode:BinaryNode[E],parentSide:BinaryChildNode[E])
+	init withLeft(elem:E,left:nullable BinaryChildNode[E], parentNode:BinaryNode[E],parentSide:nullable BinaryChildNode[E])
 	do
 		init(elem)
 		_leftChild = left
@@ -65,28 +65,28 @@ class BinaryChildNode[E]
 	end
 
 	#sets the leftChildNode and sets its parent to self
-	fun leftChild=(left:BinaryChildNode[E])
+	fun leftChild=(left:nullable BinaryChildNode[E])
 	do
 		_leftChild = left
 		left.parent = self
 	end
 
 	#returns the left child node
-	fun leftChild:BinaryChildNode[E]
+	fun leftChild:nullable BinaryChildNode[E]
 	do
 		return _leftChild
 	end
 	
 	#Sets the rightChild of this node
 	#also sets the right child's parent to this node(self)
-	fun rightChild=(right:BinaryChildNode[E])
+	fun rightChild=(right:nullable BinaryChildNode[E])
 	do
 		_rightChild = right
 		right.parent = self
 	end
 
 	#Returns the rightChild of this node
-	fun rightChild:BinaryChildNode[E]
+	fun rightChild:nullable BinaryChildNode[E]
 	do
 		return _rightChild
 	end
@@ -100,7 +100,6 @@ class BinaryChildNode[E]
 	do
 		return _parent
 	end
-
 end
 
 #has no parent
@@ -112,27 +111,27 @@ class BinaryRootNode[E]
 		init(elem)
 	end
 
-	var _leftChild:BinaryChildNode[E]
-	var _rightChild:BinaryChildNode[E]
+	var _leftChild:nullable BinaryChildNode[E]
+	var _rightChild:nullable BinaryChildNode[E]
 
-	fun leftChild=(left:BinaryChildNode[E])
+	fun leftChild=(left:nullable BinaryChildNode[E])
 	do
 		_leftChild = left
 		left.parent = self
 	end
 	
-	fun leftChild:BinaryChildNode[E]
+	fun leftChild:nullable BinaryChildNode[E]
 	do
 		return _leftChild
 	end
 
-	fun rightChild=(right:BinaryChildNode[E])
+	fun rightChild=(right:nullable BinaryChildNode[E])
 	do
 		_rightChild = right
 		right.parent = self
 	end
 
-	fun rightChild:BinaryChildNode[E]
+	fun rightChild:nullable BinaryChildNode[E]
 	do
 		return _rightChild
 	end
@@ -146,5 +145,47 @@ class BinaryTree[E]
 	init(root:BinaryRootNode[E])
 	do
 		rootNode = root
+	end
+
+	fun walkDfsLeft
+	do
+		var nodesToWalk:List[nullable BinaryChildNode[E]] = new List[nullable BinaryChildNode[E]]
+		
+		if rootNode.rightChild != null then nodesToWalk.push(rootNode.rightChild)
+		if rootNode.leftChild != null then nodesToWalk.push(rootNode.leftChild)
+
+		while nodesToWalk.length >0 
+		do
+			var currentNode = nodesToWalk.pop
+
+		
+			if currentNode.rightChild != null then
+				nodesToWalk.push(currentNode.rightChild)
+			end
+			if currentNode.leftChild != null then
+				nodesToWalk.push(currentNode.leftChild)
+			end
+			print currentNode.element
+		end
+
+	end
+end
+
+class TreeIterator[E]
+	super Iterator[E]
+	var source:Iterator[E]
+	var seen = new HashSet[Object]
+
+	redef fun is_ok do return source.is_ok
+
+	redef fun item do return source.item
+
+	redef fun next
+	do
+		self.seen.add(self.item.as(Object))
+		source.next
+		while source.is_ok and self.seen.has(source.item.as(Object)) do
+			source.next
+		end
 	end
 end
