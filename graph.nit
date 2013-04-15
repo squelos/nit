@@ -32,13 +32,13 @@ abstract class BinaryNode[E]
 	fun addLeft(child:E)
 	do
 		_leftChild = new BinaryChildNode[E].withParent(child, self)
-		child.parent = self
+		_leftChild.parent = self
 	end
 
 	fun addRight(child:E)
 	do
 		_rightChild = new BinaryChildNode[E].withParent(child, self)
-		child.parent = self
+		_leftChild.parent = self
 	end
 	
 	#sets the leftChildNode and sets its parent to self
@@ -250,10 +250,10 @@ class BinaryTree[E]
 	end
 
 	#if true, then BFS, else DFS walk
-	private fun walkWithList(direction:Bool, list:List[nullable BinaryChildNode[E]],bfs:Bool):nullable BinaryChildNode[E]
+	private fun walkWithList(direction:Bool, list:List[nullable BinaryNode[E]],bfs:Bool):nullable BinaryNode[E]
 	do
 		
-		var currentNode:nullable BinaryChildNode[E]
+		var currentNode:nullable BinaryNode[E]
 		if list.length > 0 then
 		
 			if bfs then
@@ -276,7 +276,7 @@ class BinaryTree[E]
 					list.push(currentNode.leftChild)
 				end
 			end
-			print currentNode.element
+			#print currentNode.element
 		else
 			currentNode = null
 		end
@@ -290,7 +290,7 @@ abstract class TreeIterator[E,T]
 	
 	var sourceTree:BinaryTree[T]
 	var currentItem:E
-	var nodes:List[nullable BinaryChildNode[T]] = new List[nullable BinaryChildNode[T]]
+	var nodes:List[nullable BinaryNode[T]] = new List[nullable BinaryNode[T]]
 
 	redef fun is_ok 
 	do
@@ -312,7 +312,7 @@ abstract class TreeIterator[E,T]
 	do
 		sourceTree = tree
 		currentItem = tree.rootNode
-		nodes.add(sourceTree.rootNode.as(nullable BinaryChildNode[T]))
+		nodes.add(sourceTree.rootNode)
 	end
 end
 
