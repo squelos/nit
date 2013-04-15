@@ -1,7 +1,7 @@
 module binaryTreeExample
 
 import graph
-	var rootNode:BinaryRootNode[Int] = new  BinaryRootNode[Int].withElement(2)
+	var rootNode:BinaryRootNode[Int] = new  BinaryRootNode[Int].withElement(8888)
 	var binaryTree:BinaryTree[Int] = new BinaryTree[Int](rootNode)
 	var firstChild:BinaryChildNode[Int] = new BinaryChildNode[Int].withParent(1, rootNode, rootNode.leftChild)
 	rootNode.leftChild = firstChild
@@ -16,6 +16,22 @@ import graph
 	secondChild.leftChild = fithChild
 	var sixthChild = new BinaryChildNode[Int].withParent(6, secondChild, secondChild.rightChild)
 	secondChild.rightChild = sixthChild
-	binaryTree.walkDfsLeftt
+	print "walking DFS left"
+	binaryTree.walkDfsLeft
+	print "Walking Dfs Right"
+	binaryTree.walkDfsRight
+	print "walking BFS Left"
+	binaryTree.walkBfsLeft
+	print "walking BFS right"
+	binaryTree.walkBfsRight
+
+	print "Testing the Iterator"
+
+	var iterator = binaryTree.bfsLeftIterator
+	while iterator.is_ok
+	do
+		print iterator.item
+		iterator.next
+	end
 
 
