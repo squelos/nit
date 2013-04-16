@@ -14,6 +14,8 @@ import graph
 
 	element.leftChild.addLeft(7)
 	element.leftChild.addRight(8)
+	print "Printing the depth of a child Node, should be 1"
+	print element.depth
 	#rootNode.rightChild.leftChild.addLeft(9)
 	#rootNode.rightChild.rightChild.addRight(10)
 	#var secondChild = new BinaryChildNode[Int].withParent(2, rootNode, rootNode.rightChild)
@@ -45,4 +47,5 @@ import graph
 		iterator.next
 	end
 
-
+	var binarySearchT = new BinarySearchTree[Int].withImplicitRoot(20)
+	

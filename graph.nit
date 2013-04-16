@@ -2,22 +2,7 @@ module graph
 
 #Can have multiple children 
 abstract class AbstractNode[E]
-	var parent:nullable E	
-end 
-
-
-abstract class AbstractTree[E]
-	var root:E
-end
-
-abstract class BinaryNode[E]
 	var _element:E
-	var _leftChild:nullable BinaryChildNode[E]
-	var _rightChild:nullable BinaryChildNode[E]
-
-	private init(elem:E) do
-		_element = elem
-	end
 
 	fun element:E
 	do
@@ -29,12 +14,35 @@ abstract class BinaryNode[E]
 		_element = elem
 	end
 
+	init(elem:E)do
+		_element = elem
+	end
+
+end 
+
+
+abstract class AbstractTree[E]
+	var rootNode:AbstractNode[E]
+end
+
+abstract class BinaryNode[E]
+	super AbstractNode[E]
+	var _leftChild:nullable BinaryChildNode[E]
+	var _rightChild:nullable BinaryChildNode[E]
+
+	private init(elem:E) do
+		_element = elem
+	end
+
+	
+	#Adds a new left child and registers the parent of the child to self
 	fun addLeft(child:E)
 	do
 		_leftChild = new BinaryChildNode[E].withParent(child, self)
 		_leftChild.parent = self
 	end
 
+	#Adds a right child and registers the parent of the child to Self
 	fun addRight(child:E)
 	do
 		_rightChild = new BinaryChildNode[E].withParent(child, self)
@@ -67,6 +75,8 @@ abstract class BinaryNode[E]
 	do
 		return _rightChild
 	end
+
+	
 
 end
 
@@ -113,6 +123,26 @@ class BinaryChildNode[E]
 	do
 		return _parent
 	end
+	
+	#Returns the depth of the node. 
+	#Root depth is 0
+	fun depth:Int
+	do
+		var depth = 0#Root is 0 depth
+		
+		if depth == 0 and parent isa BinaryRootNode[E] then return 1
+		var par = parent.as(BinaryChildNode[E])
+
+		while par isa BinaryChildNode[E]
+		do
+			depth += 1
+			if par.parent isa BinaryChildNode[E] then 
+				par = par.parent.as(BinaryChildNode[E])
+			end
+			
+		end
+		return depth
+	end
 end
 
 #has no parent
@@ -128,6 +158,7 @@ end
 
 #Contains multiple nodes, and starts with a root node
 class BinaryTree[E]
+	#super AbstractTree[E]
 	var rootNode:BinaryRootNode[E]
 
 	init(root:BinaryRootNode[E])
@@ -135,21 +166,25 @@ class BinaryTree[E]
 		rootNode = root
 	end
 
+	#returns an iterator using a left depth First Search traverse method
 	fun dfsLeftIterator:TreeIterator[BinaryNode[E],E]
 	do
 		return new TreeIteratorDfsLeft[BinaryNode[E],E](self)
 	end
 
+	#Returns an iterator using a right Depth First Search traverse method
 	fun dfsRightIterator:TreeIterator[BinaryNode[E],E]
 	do
 		return new TreeIteratorDfsRight[BinaryNode[E],E](self)
 	end
 
+	#Returns an iterator using a Left breadth search traverse method
 	fun bfsLeftIterator:TreeIterator[BinaryNode[E],E]
 	do
 		return new TreeIteratorBfsLeft[BinaryNode[E],E](self)
 	end
 
+	#Returns a new TreeIterator that uses a Right Breadth First Search to traverse the tree
 	fun bfsRightIterator:TreeIterator[BinaryNode[E],E]
 	do		
 		return new TreeIteratorBfsRight[BinaryNode[E],E](self)
@@ -176,7 +211,8 @@ class BinaryTree[E]
 			if rootNode.rightChild != null then nodesToWalk.push(rootNode.rightChild)
 			if rootNode.leftChild != null then nodesToWalk.push(rootNode.leftChild)
 		end
-		print rootNode.element 
+		rootNode.element.output
+		#print rootNode.element 
 		
 
 		while nodesToWalk.length >0 
@@ -292,6 +328,7 @@ abstract class TreeIterator[E,T]
 	var currentItem:E
 	var nodes:List[nullable BinaryNode[T]] = new List[nullable BinaryNode[T]]
 
+	#Returns true if the currentItem is not null
 	redef fun is_ok 
 	do
 		if currentItem != null then
@@ -301,6 +338,7 @@ abstract class TreeIterator[E,T]
 		end
 	end
 
+	#Returns the current item
 	redef fun item  do return currentItem
 
 	redef fun next
@@ -319,6 +357,7 @@ end
 class TreeIteratorDfsLeft[E,T]
 	super TreeIterator[E,T]
 
+	#advances the cursor to the next node
 	redef fun next
 	do
 		currentItem = sourceTree.walkWithList(false,nodes,false).as(E)
@@ -329,6 +368,7 @@ end
 class TreeIteratorDfsRight[E,T]
 	super TreeIterator[E,T]
 
+	#advances the cursor to the next node
 	redef fun next
 	do
 		currentItem = sourceTree.walkWithList(true,nodes,false).as(E)
@@ -338,6 +378,7 @@ end
 class TreeIteratorBfsLeft[E,T]
 	super TreeIterator[E,T]
 
+	#Advances the cursor to the next node
 	redef fun next
 	do
 		currentItem = sourceTree.walkWithList(false,nodes,true).as(E)
@@ -347,9 +388,133 @@ end
 class TreeIteratorBfsRight[E,T]
 	super TreeIterator[E,T]
 
+	#advances the cursor to the next node
 	redef fun next
 	do
 		currentItem = sourceTree.walkWithList(true,nodes,true).as(E)
 	end
+end
+
+#Binary Search Tree Region Region
+
+class BinarySearchTree[E:Comparable]
+	var rootNode:BinarySearchRoot[E]
+
+	init withImplicitRoot(val:E)
+	do
+		rootNode = new BinarySearchRoot[E](val)
+	end
+
+	fun findKeyNode(key:E):BinarySearchNode[E]
+	do
+		#we start at the rootNode 
+		var currentNode:nullable BinarySearchNode[E]  = rootNode
+		while currentNode!= null
+		do
+			if currentNode.key == key then
+				return currentNode
+			else
+				if key < currentNode.key then
+					currentNode = currentNode.left
+				else
+					currentNode = currentNode.right
+				end
+			end
+		end
+		return rootNode
+	end
+
+	fun insert(key:E):BinarySearchNode[E]
+	do
+		return insertHelper(rootNode, key)
+	end
+
+	private fun insertHelper(node:BinarySearchNode[E], key:E):BinarySearchNode[E]
+	do
+		var inserted:BinarySearchNode[E]
+		if key < node.key then
+			if node.left == null then
+				node.left = new BinarySearchChild[E].withParent(key, node)
+				inserted = node.left.as(not null)
+			else
+				inserted = insertHelper(node.left.as(not null), key)
+			end
+		else
+			if node.right == null then
+				node.right = new BinarySearchChild[E].withParent(key,node)
+				inserted = node.right.as(not null)
+				
+			else
+				inserted = insertHelper(node.right.as(not null), key)
+			end
+		end
+		return inserted
+	end
+
+end
+
+abstract class BinarySearchNode[E:Comparable]
+	var key:E
+	private var _left:nullable BinarySearchChild[E]
+	private var _right:nullable BinarySearchChild[E]
+
+	init(keyValue:E)
+	do
+		key = keyValue
+	end
+
+	fun left=(val:nullable BinarySearchChild[E])
+	do
+		_left = val
+		val.parent = self
+	end
+
+	fun left:nullable BinarySearchChild[E]
+	do
+		return _left
+	end
+
+	fun right=(val:nullable BinarySearchChild[E])
+	do
+		_right = val
+		val.parent = self
+	end
+
+	fun right:nullable BinarySearchChild[E]
+	do
+		return _right
+	end
+
+end
+
+class BinarySearchRoot[E:Comparable]
+	super BinarySearchNode[E]
+	
+
+	
+end
+
+class BinarySearchChild[E:Comparable]
+	super BinarySearchNode[E]
+	private var _parent:BinarySearchNode[E]
+
+	fun parent:BinarySearchNode[E]
+	do
+		return _parent
+	end
+
+	fun parent=(val:BinarySearchNode[E])
+	do
+		_parent = val
+	end
+
+	init withParent(val:E, par:BinarySearchNode[E])
+	do
+		init(val)
+		#key = val
+		_parent = par
+	end
+
+
 end
 
