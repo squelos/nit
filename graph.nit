@@ -398,7 +398,7 @@ end
 #Binary Search Tree Region Region
 
 class BinarySearchTree[E:Comparable]
-	var rootNode:BinarySearchRoot[E]
+	var rootNode:BinarySearchNode[E]
 
 	init withImplicitRoot(val:E)
 	do
@@ -422,6 +422,11 @@ class BinarySearchTree[E:Comparable]
 			end
 		end
 		return rootNode
+	end
+
+	fun iterator:BstIteratorInOrder[BinarySearchNode[E],E]
+	do
+		return new BstIteratorInOrder[BinarySearchNode[E],E](self)
 	end
 
 	fun insert(key:E):BinarySearchNode[E]
@@ -450,6 +455,39 @@ class BinarySearchTree[E:Comparable]
 		end
 		return inserted
 	end
+
+	fun delete(key:E):Bool
+	do
+		if rootNode.key == key then
+			var auxRoot = new BinarySearchRoot[E](0)
+			auxRoot.left = rootNode.as(nullable BinarySearchChild[E])
+			var result = rootNode.remove(key, auxRoot)
+			rootNode = auxRoot.left.as(not null)
+			return result
+		else
+			return rootNode.remove(key, null)
+		end
+	end
+
+	fun walkWithList(list:List[nullable BinarySearchNode[E]])
+	do
+		var node:nullable BinarySearchNode[E]
+		node = rootNode.as(nullable BinarySearchNode[E])
+		var tmpStack = new List[nullable BinarySearchNode[E]]
+		while true
+		do
+			if node != null then
+				tmpStack.push(node)
+				node = node.left
+			else
+				if tmpStack.length == 0 then return
+				node = tmpStack.pop	
+				list.push(node)
+				node = node.right
+			end
+		end
+	end
+
 
 end
 
@@ -485,6 +523,59 @@ abstract class BinarySearchNode[E:Comparable]
 		return _right
 	end
 
+	fun remove(keyValue:E, par:nullable BinarySearchNode[E]):Bool
+	do
+
+		if key < keyValue then
+			if left != null then
+				return left.remove(keyValue, self)
+			else
+				return false
+			end
+		else
+			if keyValue > key then
+				if right != null then
+					return right.remove(keyValue, self)
+				else
+					return false
+				end
+			else
+				if left != null and right != null then
+					key = right.minValue
+					right.remove(key, self)
+				else
+					if par.left == self then
+						if left != null then
+							par.left = left
+						else
+							par.left = right
+						end
+					else
+						if par.right == self then
+							if  left != null then
+								par.right = left
+							else
+								par.right = right
+							end
+						end
+					end
+
+				end
+				return true
+			end		
+		end
+	end
+
+	fun minValue:E
+	do
+		if left != null then
+			return left.key
+		else
+			return left.minValue
+		end
+
+	end
+
 end
 
 class BinarySearchRoot[E:Comparable]
@@ -515,6 +606,57 @@ class BinarySearchChild[E:Comparable]
 		_parent = par
 	end
 
+end
 
+abstract class BstIterator[E,T:Comparable]
+	super Iterator[E]
+
+	var sourceTree:BinarySearchTree[T]
+	var currentItem:E
+	var nodes:List[nullable BinarySearchNode[T]] = new List[nullable BinarySearchNode[T]]
+	redef fun is_ok
+	do
+		if currentItem != null then
+			return true
+		else
+			return false
+		end
+	end
+
+	redef fun next
+	do
+
+	end
+
+	redef fun item do return currentItem
+
+	init(tree:BinarySearchTree[T])
+	do
+		sourceTree = tree
+		#tree.buildList(nodes)
+		tree.walkWithList(nodes)
+		currentItem = nodes.first
+		#currentItem = tree.rootNode
+		#nodes.add(sourceTree.rootNode)
+	end
+
+
+end
+
+class BstIteratorInOrder[E,T:Comparable]
+	super BstIterator[E,T]
+	var i:Int = 0
+
+	redef fun next 
+	do
+		#currentItem = nodes[i].as(E)
+		if nodes[i] != null then
+			currentItem = nodes[i]
+			i += 1
+		else
+			currentItem = null
+		end
+		#currentItem = sourceTree.walkWithList(nodes).as(E)
+	end
 end
 

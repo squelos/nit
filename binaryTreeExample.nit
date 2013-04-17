@@ -16,19 +16,6 @@ import graph
 	element.leftChild.addRight(8)
 	print "Printing the depth of a child Node, should be 1"
 	print element.depth
-	#rootNode.rightChild.leftChild.addLeft(9)
-	#rootNode.rightChild.rightChild.addRight(10)
-	#var secondChild = new BinaryChildNode[Int].withParent(2, rootNode, rootNode.rightChild)
-	#rootNode.rightChild = secondChild
-
-	#var thirdChild = new BinaryChildNode[Int].withParent(3, firstChild, firstChild.leftChild)
-	#firstChild.leftChild = thirdChild
-	#var fourthChild = new BinaryChildNode[Int].withParent(4, firstChild, firstChild.rightChild)
-	#firstChild.rightChild = fourthChild
-	#var fithChild = new BinaryChildNode[Int].withParent(5, secondChild, secondChild.leftChild)
-	#secondChild.leftChild = fithChild
-	#var sixthChild = new BinaryChildNode[Int].withParent(6, secondChild, secondChild.rightChild)
-	#secondChild.rightChild = sixthChild
 	print "walking DFS left"
 	binaryTree.walkDfsLeft
 	print "Walking Dfs Right"
@@ -47,5 +34,25 @@ import graph
 		iterator.next
 	end
 
+	print "Testing the BinarySearchTree"
+
+
 	var binarySearchT = new BinarySearchTree[Int].withImplicitRoot(20)
-	
+	print "Values inserted : 20, 2, 5, 6,7,8,9,14,25,85, 98,42,53,52,156,975,853,352,9878"
+	binarySearchT.insert(2)
+	binarySearchT.insert(5)
+	var listToInsert = [999,988,867,799,900,690,500,790,400,300,200,111]
+	for a in listToInsert do
+		print binarySearchT.insert(a)
+
+	end
+	print "insert finished"
+
+	var iterator2 = binarySearchT.iterator
+	print "iterator created"
+	while iterator2.is_ok
+	do
+		print iterator2.item.key
+		iterator2.next
+	end
+
