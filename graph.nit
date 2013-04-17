@@ -326,6 +326,7 @@ abstract class TreeIterator[E,T]
 	
 	var sourceTree:BinaryTree[T]
 	var currentItem:E
+	
 	var nodes:List[nullable BinaryNode[T]] = new List[nullable BinaryNode[T]]
 
 	#Returns true if the currentItem is not null
@@ -405,7 +406,7 @@ class BinarySearchTree[E:Comparable]
 		rootNode = new BinarySearchRoot[E](val)
 	end
 
-	fun findKeyNode(key:E):BinarySearchNode[E]
+	fun findKeyNode(key:E):nullable BinarySearchNode[E]
 	do
 		#we start at the rootNode 
 		var currentNode:nullable BinarySearchNode[E]  = rootNode
@@ -421,7 +422,8 @@ class BinarySearchTree[E:Comparable]
 				end
 			end
 		end
-		return rootNode
+		currentNode = null
+		return currentNode
 	end
 
 	fun iterator:BstIteratorInOrder[BinarySearchNode[E],E]
@@ -436,24 +438,31 @@ class BinarySearchTree[E:Comparable]
 
 	private fun insertHelper(node:BinarySearchNode[E], key:E):BinarySearchNode[E]
 	do
-		var inserted:BinarySearchNode[E]
-		if key < node.key then
-			if node.left == null then
-				node.left = new BinarySearchChild[E].withParent(key, node)
-				inserted = node.left.as(not null)
+		var result = findKeyNode(key)
+		if result == null then
+			var inserted:BinarySearchNode[E]
+			if key == node.key then return node
+			if key < node.key then
+				if node.left == null then
+					node.left = new BinarySearchChild[E].withParent(key, node)
+					inserted = node.left.as(not null)
+				else
+					inserted = insertHelper(node.left.as(not null), key)
+				end
 			else
-				inserted = insertHelper(node.left.as(not null), key)
-			end
-		else
-			if node.right == null then
-				node.right = new BinarySearchChild[E].withParent(key,node)
-				inserted = node.right.as(not null)
+				if node.right == null then
+					node.right = new BinarySearchChild[E].withParent(key,node)
+					inserted = node.right.as(not null)
 				
-			else
-				inserted = insertHelper(node.right.as(not null), key)
+				else
+					inserted = insertHelper(node.right.as(not null), key)
+				end
 			end
+			return inserted
+		else
+			return result
 		end
-		return inserted
+		
 	end
 
 	fun delete(key:E):Bool
@@ -613,13 +622,14 @@ abstract class BstIterator[E,T:Comparable]
 
 	var sourceTree:BinarySearchTree[T]
 	var currentItem:E
-	var nodes:List[nullable BinarySearchNode[T]] = new List[nullable BinarySearchNode[T]]
+	var nodes:List[E] = new List[E]
+	var i:Int = 0
 	redef fun is_ok
 	do
-		if currentItem != null then
-			return true
-		else
+		if i == nodes.length - 1 then 
 			return false
+		else 
+			return true
 		end
 	end
 
@@ -634,9 +644,8 @@ abstract class BstIterator[E,T:Comparable]
 	do
 		sourceTree = tree
 		#tree.buildList(nodes)
-		tree.walkWithList(nodes)
-		currentItem = nodes.first
-		#currentItem = tree.rootNode
+		tree.walkWithList(nodes.as(List[nullable BinarySearchNode[T]]))
+		currentItem = nodes[i]
 		#nodes.add(sourceTree.rootNode)
 	end
 
@@ -645,7 +654,6 @@ end
 
 class BstIteratorInOrder[E,T:Comparable]
 	super BstIterator[E,T]
-	var i:Int = 0
 
 	redef fun next 
 	do
@@ -653,8 +661,6 @@ class BstIteratorInOrder[E,T:Comparable]
 		if nodes[i] != null then
 			currentItem = nodes[i]
 			i += 1
-		else
-			currentItem = null
 		end
 		#currentItem = sourceTree.walkWithList(nodes).as(E)
 	end

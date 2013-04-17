@@ -37,22 +37,62 @@ import graph
 	print "Testing the BinarySearchTree"
 
 
+	var bstInsertTime = get_time
 	var binarySearchT = new BinarySearchTree[Int].withImplicitRoot(20)
-	print "Values inserted : 20, 2, 5, 6,7,8,9,14,25,85, 98,42,53,52,156,975,853,352,9878"
+	#print "Values inserted : 20, 2, 5, 6,7,8,9,14,25,85, 98,42,53,52,156,975,853,352,9878"
 	binarySearchT.insert(2)
 	binarySearchT.insert(5)
-	var listToInsert = [999,988,867,799,900,690,500,790,400,300,200,111]
+	var listToInsert = new List[Int].from([999,988,867,799,900,690,500,790,400,300,200,111,7544,2553,5266,3456,3464])
+	var vals = 0
+	while vals < 1000
+	do
+		listToInsert.add(vals.rand)
+		vals += 1
+	end
+
 	for a in listToInsert do
 		print binarySearchT.insert(a)
 
 	end
 	print "insert finished"
+	bstInsertTime = get_time - bstInsertTime
+	print "Bst Insert Time was :"
+	print bstInsertTime.to_s  
+
+
+
+	var bstSortTime = get_time
+	var listSorted = new List[Int]()
 
 	var iterator2 = binarySearchT.iterator
 	print "iterator created"
 	while iterator2.is_ok
 	do
+		if iterator2 == null then
+			print "iterator2 null"
+		else
+			if iterator2.item == null then 
+				print "iterator2 item null"
+			else
+				if iterator2.item.key == null then
+					print "iterator2.item.key is null"
+				end
+			end
+		end
+		listSorted.add(iterator2.item.key)
 		print iterator2.item.key
 		iterator2.next
 	end
+
+	bstSortTime = get_time - bstSortTime
+	print "bst Sort Time was : "
+	print bstSortTime
+
+	var compSorter = new ComparableSorter[Int]
+	var array = listToInsert.to_a
+	var arraySortTime = get_time
+	compSorter.sort(array)
+	arraySortTime = get_time - arraySortTime
+	print "array sorting was : "
+	print arraySortTime
 
