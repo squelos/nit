@@ -44,14 +44,23 @@ import graph
 	binarySearchT.insert(5)
 	var listToInsert = new List[Int].from([999,988,867,799,900,690,500,790,400,300,200,111,7544,2553,5266,3456,3464])
 	var vals = 0
+	var vals2 = 9000
 	while vals < 1000
 	do
 		listToInsert.add(vals.rand)
 		vals += 1
+		while vals2 > 8000
+		do
+			listToInsert.add(vals2.rand)
+			vals2 = vals2 - 1
+		end
+		vals2 = 9000
 	end
 
+
+
 	for a in listToInsert do
-		print binarySearchT.insert(a)
+		binarySearchT.insert(a)
 
 	end
 	print "insert finished"
@@ -68,19 +77,9 @@ import graph
 	print "iterator created"
 	while iterator2.is_ok
 	do
-		if iterator2 == null then
-			print "iterator2 null"
-		else
-			if iterator2.item == null then 
-				print "iterator2 item null"
-			else
-				if iterator2.item.key == null then
-					print "iterator2.item.key is null"
-				end
-			end
-		end
-		listSorted.add(iterator2.item.key)
-		print iterator2.item.key
+		
+		#listSorted.add(iterator2.item.key)
+		#print iterator2.item.key
 		iterator2.next
 	end
 
