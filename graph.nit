@@ -2,33 +2,38 @@ module graph
 
 #Can have multiple children 
 abstract class AbstractNode[E]
-	var _element:E
+	private var _element:E
 
+	#returns the element value
 	fun element:E
 	do
 		return _element
 	end
 
+	#sets the element value
 	fun element=(elem:E)
 	do
 		_element = elem
 	end
 
+	#initializes with an element[E]
 	init(elem:E)do
 		_element = elem
 	end
-
 end 
 
 
+#Only has an AbstractNode[E]
 abstract class AbstractTree[E]
 	var rootNode:AbstractNode[E]
 end
 
+#Node that has 2 nullable Children
 abstract class BinaryNode[E]
 	super AbstractNode[E]
-	var _leftChild:nullable BinaryChildNode[E]
-	var _rightChild:nullable BinaryChildNode[E]
+	
+	private var _leftChild:nullable BinaryChildNode[E]
+	private var _rightChild:nullable BinaryChildNode[E]
 
 	private init(elem:E) do
 		_element = elem
@@ -50,7 +55,7 @@ abstract class BinaryNode[E]
 	end
 	
 	#sets the leftChildNode and sets its parent to self
-	fun leftChild=(left:nullable BinaryChildNode[E])
+	private fun leftChild=(left:nullable BinaryChildNode[E])
 	do
 		_leftChild = left
 		left.parent = self
@@ -64,7 +69,7 @@ abstract class BinaryNode[E]
 	
 	#Sets the rightChild of this node
 	#also sets the right child's parent to this node(self)
-	fun rightChild=(right:nullable BinaryChildNode[E])
+	private fun rightChild=(right:nullable BinaryChildNode[E])
 	do
 		_rightChild = right
 		right.parent = self
@@ -75,12 +80,10 @@ abstract class BinaryNode[E]
 	do
 		return _rightChild
 	end
-
-	
-
 end
 
 
+#Class for the Child Nodes. This one has 2 children (left and right) and a Parent(BinaryNode[E])
 class BinaryChildNode[E]
 	super BinaryNode[E]
 	var _parent:BinaryNode[E]
@@ -114,11 +117,12 @@ class BinaryChildNode[E]
 	end
 
 
-	fun parent=(parent:BinaryNode[E])
+	private fun parent=(parent:BinaryNode[E])
 	do
 		_parent = parent
 	end
 
+	#returns the parent of this child
 	fun parent:BinaryNode[E]
 	do
 		return _parent
@@ -145,7 +149,7 @@ class BinaryChildNode[E]
 	end
 end
 
-#has no parent
+#has no parent but has 2 children
 class BinaryRootNode[E]
 	super BinaryNode[E]
 
@@ -160,11 +164,19 @@ end
 class BinaryTree[E]
 	#super AbstractTree[E]
 	var rootNode:BinaryRootNode[E]
-
-	init(root:BinaryRootNode[E])
+	
+	
+	private init(root:BinaryRootNode[E])
 	do
 		rootNode = root
 	end
+
+	#Initializes a Tree with a new root constructed from the value
+	init withValue(value:E)
+	do
+		rootNode = new BinaryRootNode[E].withElement(value)
+	end
+
 
 	#returns an iterator using a left depth First Search traverse method
 	fun dfsLeftIterator:TreeIterator[BinaryNode[E],E]
@@ -188,16 +200,6 @@ class BinaryTree[E]
 	fun bfsRightIterator:TreeIterator[BinaryNode[E],E]
 	do		
 		return new TreeIteratorBfsRight[BinaryNode[E],E](self)
-	end
-
-	fun walkDfsLeft
-	do
-		walkDfs(false)
-	end
-
-	fun walkDfsRight
-	do
-		walkDfs(true)
 	end
 
 	#if true, walks to the right, else walks to the left
@@ -240,17 +242,8 @@ class BinaryTree[E]
 
 	end
 
-	fun walkBfsLeft
-	do
-		walkBfs(false)
-	end
 
-	fun walkBfsRight
-	do
-		walkBfs(true)
-	end
-
-	fun walkBfs(direction:Bool)
+	private fun walkBfs(direction:Bool)
 	do
 		var nodes = new List[nullable BinaryChildNode[E]]
 		if direction then #walk right
@@ -324,10 +317,10 @@ end
 abstract class TreeIterator[E,T]
 	super Iterator[E]
 	
-	var sourceTree:BinaryTree[T]
-	var currentItem:E
+	private var sourceTree:BinaryTree[T]
+	private var currentItem:E
 	
-	var nodes:List[nullable BinaryNode[T]] = new List[nullable BinaryNode[T]]
+	private var nodes:List[nullable BinaryNode[T]] = new List[nullable BinaryNode[T]]
 
 	#Returns true if the currentItem is not null
 	redef fun is_ok 
@@ -355,6 +348,7 @@ abstract class TreeIterator[E,T]
 	end
 end
 
+#An iterator that uses the Depth First Search Left method for traversal
 class TreeIteratorDfsLeft[E,T]
 	super TreeIterator[E,T]
 
@@ -366,6 +360,7 @@ class TreeIteratorDfsLeft[E,T]
 	end
 end
 
+#An iterator that uses the Depth First Search Right method for traversal
 class TreeIteratorDfsRight[E,T]
 	super TreeIterator[E,T]
 
@@ -376,6 +371,8 @@ class TreeIteratorDfsRight[E,T]
 	end
 end
 
+
+#An iterator that uses the Breadth First Search method for traversal
 class TreeIteratorBfsLeft[E,T]
 	super TreeIterator[E,T]
 
@@ -386,6 +383,7 @@ class TreeIteratorBfsLeft[E,T]
 	end
 end
 
+#An iterator that uses the Breadth First 
 class TreeIteratorBfsRight[E,T]
 	super TreeIterator[E,T]
 
@@ -478,13 +476,12 @@ class BinarySearchTree[E:Comparable]
 		end
 	end
 
-	fun walkWithList(list:List[nullable BinarySearchNode[E]])
+	private fun walkWithList(list:List[nullable BinarySearchNode[E]])
 	do
 		var node:nullable BinarySearchNode[E]
 		node = rootNode.as(nullable BinarySearchNode[E])
 		var tmpStack = new List[nullable BinarySearchNode[E]]
-		while true
-		do
+		loop
 			if node != null then
 				tmpStack.push(node)
 				node = node.left
@@ -510,7 +507,7 @@ abstract class BinarySearchNode[E:Comparable]
 		key = keyValue
 	end
 
-	fun left=(val:nullable BinarySearchChild[E])
+	private fun left=(val:nullable BinarySearchChild[E])
 	do
 		_left = val
 		val.parent = self
@@ -521,7 +518,7 @@ abstract class BinarySearchNode[E:Comparable]
 		return _left
 	end
 
-	fun right=(val:nullable BinarySearchChild[E])
+	private fun right=(val:nullable BinarySearchChild[E])
 	do
 		_right = val
 		val.parent = self
@@ -532,7 +529,7 @@ abstract class BinarySearchNode[E:Comparable]
 		return _right
 	end
 
-	fun remove(keyValue:E, par:nullable BinarySearchNode[E]):Bool
+	private fun remove(keyValue:E, par:nullable BinarySearchNode[E]):Bool
 	do
 
 		if key < keyValue then
@@ -603,7 +600,7 @@ class BinarySearchChild[E:Comparable]
 		return _parent
 	end
 
-	fun parent=(val:BinarySearchNode[E])
+	private fun parent=(val:BinarySearchNode[E])
 	do
 		_parent = val
 	end
@@ -620,10 +617,10 @@ end
 abstract class BstIterator[E,T:Comparable]
 	super Iterator[E]
 
-	var sourceTree:BinarySearchTree[T]
-	var currentItem:E
-	var nodes:List[E] = new List[E]
-	var i:Int = 0
+	private var sourceTree:BinarySearchTree[T]
+	private var currentItem:E
+	private var nodes:List[E] = new List[E]
+	private var i:Int = 0
 	redef fun is_ok
 	do
 		if i == nodes.length - 1 then 
@@ -648,8 +645,6 @@ abstract class BstIterator[E,T:Comparable]
 		currentItem = nodes[i]
 		#nodes.add(sourceTree.rootNode)
 	end
-
-
 end
 
 class BstIteratorInOrder[E,T:Comparable]
@@ -666,3 +661,359 @@ class BstIteratorInOrder[E,T:Comparable]
 	end
 end
 
+#RB Tree Region
+class RBTree[E:Comparable, T]
+	private  var _rootNode:nullable RBNode[E,T]
+
+	fun rootNode:nullable RBNode[E,T]
+	do
+		return _rootNode
+	end
+
+	private fun rootNode=(node:nullable RBNode[E,T])
+	do
+		_rootNode = node
+	end
+
+	init withImplicitRoot(key:E,val:T)
+	do
+		_rootNode = new RBNode[E,T](key, val, false)
+	end
+
+	fun findKeyNode(key:E):nullable RBNode[E,T]
+	do
+		#we start at the rootNode 
+		var currentNode:nullable RBNode[E,T]  = rootNode
+		while currentNode!= null
+		do
+			if currentNode.key == key then
+				return currentNode
+			else
+				if key < currentNode.key then
+					currentNode = currentNode.left
+				else
+					currentNode = currentNode.right
+				end
+			end
+		end
+		currentNode = null
+		return currentNode
+	end
+
+	fun insert(key:E, val:T):nullable RBNode[E,T]
+	do
+		var insertedNode = new RBNode[E,T](key,val, true)
+		var n = rootNode
+		loop
+			var compResult = key <=> n.key
+			if compResult == 0 then
+				n.value = val
+				return insertedNode
+			else
+				if compResult == -1 then
+					if n.left == null then
+						n.left = insertedNode
+						break
+					else
+						n = n.left
+					end
+				else
+					if n.right == null then
+						n.right = insertedNode
+						break
+					else
+						n = n.right
+					end
+				end
+			end
+		end
+		insertedNode.parent = n
+		insertCase1(insertedNode)
+		return insertedNode
+
+	end
+
+	fun delete(key:E)
+	do
+		var n = findKeyNode(key)
+		if n != null then
+			return
+		end
+
+		if n.left != null and n.right != null then
+			var pred = maximumNode(n.left)
+			n.key = pred.key
+			n.value = pred.value
+			n = pred
+		end
+		var child:nullable RBNode[E,T]
+		if n.right == null then 
+			child = n.left
+		else
+			child = n.right
+		end
+
+		if not color(n) then
+			n.isRed = color(child)
+			deleteCase1(n)
+		end
+		replaceNode(n,child)
+		if color(rootNode) then
+			rootNode.isRed = false
+		end
+
+	end
+
+	private fun insertCase1(n:nullable RBNode[E,T])
+	do
+		if n.parent == null then
+			n.isRed = false
+		else
+			insertCase2(n)
+		end
+	end
+
+	private fun insertCase2(n:nullable RBNode[E,T])
+	do
+		if not color(n.parent) then
+			return
+		else
+			insertCase3(n)
+		end
+	end
+
+	private fun insertCase3(n:nullable RBNode[E,T])
+	do
+		if color(n.uncle) then
+			n.parent.isRed = false
+			n.uncle.isRed = false
+			n.grandParent.isRed = true
+			insertCase1(n.grandParent)
+		else
+			insertCase4(n)
+		end
+	end
+
+	private fun insertCase4(n:nullable RBNode[E,T])
+	do
+		if n == n.parent.right and n.parent == n.grandParent.left then
+			rotateLeft(n.parent)
+			n = n.left
+		else
+			if n == n.parent.left and n.parent == n.grandParent.right then
+				rotateRight(n.parent)
+				n = n.right
+			end
+		end
+		insertCase5(n)
+	end
+
+	private fun insertCase5(n:nullable RBNode[E,T])
+	do
+		n.parent.isRed = false
+		n.grandParent.isRed = true
+		if n == n.parent.left and n.parent == n.grandParent.left then
+			rotateRight(n.grandParent)
+		else
+			rotateLeft(n.grandParent)
+		end
+	end
+	
+	private fun rotateLeft(node:nullable RBNode[E,T])
+	do
+		var r = node.right
+		replaceNode(node,r)
+		node.right = r.left
+		if r.left != null then
+			r.left.parent = node
+		end
+		r.left = node
+		node.parent = r
+	end
+	
+	private fun rotateRight(node:nullable RBNode[E,T])
+	do
+		var l = node.left
+		replaceNode(node,l)
+		node.left = l.right
+		if l.right != null then
+			l.right.parent = node
+		end
+		l.right = node
+		node.parent = l
+	end
+
+	private fun replaceNode(oldNode:nullable RBNode[E,T], newNode:nullable RBNode[E,T])
+	do
+		if oldNode.parent != null then 
+			rootNode = newNode
+		else
+			if oldNode == oldNode.parent.left then
+				oldNode.parent.left = newNode
+			else
+				oldNode.parent.right = newNode
+			end
+
+		end
+		if newNode != null then
+			newNode.parent = oldNode.parent
+		end
+	end
+	
+	private fun color(node:nullable RBNode[E,T]):Bool
+	do
+		if node == null then
+			return false
+		else
+			return node.isRed
+		end
+	end
+
+	private fun maximumNode(node:nullable RBNode[E,T]):nullable RBNode[E,T]
+	do
+		while node.right != null 
+		do
+			node = node.right
+		end
+		return node
+	end
+
+	private fun deleteCase1(n:nullable RBNode[E,T])
+	do
+		if n.parent == null then 
+			return
+		else
+			deleteCase2(n)
+		end
+	end
+
+	private fun deleteCase2(n:nullable RBNode[E,T])
+	do
+		if color(n.sibling) then
+			n.parent.isRed = true
+			n.sibling.isRed = false
+			if n == n.parent.left then
+				rotateLeft(n.parent)
+			else
+				rotateRight(n.parent)
+			end
+		end
+		deleteCase3(n)
+	end
+end
+
+
+class RBNode[E:Comparable, T]
+	private var _key:E
+	private var _value:T
+	private var _left:nullable RBNode[E,T]
+	private var _right:nullable RBNode[E,T]
+	private var _parent:nullable RBNode[E,T]
+	private var _isRed:Bool
+
+	init(k:E, val:T, red:Bool)
+	do
+		key = k
+		value = val
+		_isRed = red
+	end
+
+	init withParent(k:E,val:T,red:Bool, par:RBNode[E,T])
+	do
+		init(k,val,red)
+		_parent = par
+	end
+
+	private fun key=(k:E)
+	do
+		_key = k
+	end
+
+	fun key:E
+	do
+		return _key
+	end
+
+	private fun value=(val:T)
+	do
+		_value = val
+	end
+
+	fun value:T
+	do
+		return _value
+	end
+
+	private fun left=(val:nullable RBNode[E,T])
+	do
+		_left = val
+	end
+
+	fun left:nullable RBNode[E,T]
+	do
+		return _left
+	end
+
+	private fun right=(val:nullable RBNode[E,T])
+	do
+		_right = val
+	end
+
+	fun right:nullable RBNode[E,T]
+	do
+		return _right
+	end
+
+	fun isRed:Bool
+	do
+		return _isRed
+	end
+
+	private fun isRed=(val:Bool)
+	do
+		_isRed = val
+	end
+
+	fun parent:nullable RBNode[E,T]
+	do
+		return _parent
+	end
+
+	private fun parent=(par:nullable RBNode[E,T])
+	do
+		_parent = par
+	end
+
+	fun grandParent:nullable RBNode[E,T]
+	do
+		if parent != null then
+			if parent.parent != null then
+				return parent.parent
+			end
+		end
+		return null
+	end
+
+	fun sibling:nullable RBNode[E,T]
+	do
+	
+		if parent != null then
+			if self == parent.left then
+				return parent.right
+			else
+				return parent.left
+			end
+		end
+		return null
+	end
+
+	fun uncle:nullable RBNode[E,T]
+	do
+		if parent != null then
+			if parent.parent != null then
+				return parent.sibling
+			end
+		end
+		return null
+	end	
+end
