@@ -1,6 +1,6 @@
 module binaryTreeExample
 
-import graph
+import tree
 	var rootNode:BinaryRootNode[Int] = new  BinaryRootNode[Int].withElement(8888)
 	var binaryTree:BinaryTree[Int] = new BinaryTree[Int].withValue(863)
 	rootNode.addLeft(1)
@@ -22,6 +22,7 @@ import graph
 	var iterator = binaryTree.bfsLeftIterator
 	while iterator.is_ok
 	do
+		
 		print iterator.item.element
 		iterator.next
 	end
@@ -37,11 +38,11 @@ import graph
 	var listToInsert = new List[Int].from([999,988,867,799,900,690,500,790,400,300,200,111,7544,2553,5266,3456,3464])
 	var vals = 0
 	var vals2 = 9000
-	while vals < 2000
+	while vals < 1000
 	do
 		listToInsert.add(vals.rand)
 		vals += 1
-		while vals2 > 6000
+		while vals2 > 8000
 		do
 			listToInsert.add(vals2.rand)
 			vals2 = vals2 - 1
@@ -59,8 +60,6 @@ import graph
 	bstInsertTime = get_time - bstInsertTime
 	print "Bst Insert Time was :"
 	print bstInsertTime.to_s  
-
-
 
 	var bstSortTime = get_time
 	var listSorted = new List[Int]
@@ -86,4 +85,32 @@ import graph
 	arraySortTime = get_time - arraySortTime
 	print "array sorting was : "
 	print arraySortTime
+
+
+	# region Test RedBlack Tree
+	var  redBlackTree = new RBTree[Int, String].withImplicitRoot(10, "RootNode")
+	redBlackTree.insert(40, "Random Value")
+	redBlackTree.insert(20, "Random Value2")
+	redBlackTree.insert(30, "Random Value3")
+	redBlackTree.insert(560, "Random Value4")
+	redBlackTree.insert(2, "Random Value5")
+	redBlackTree.insert(34, "Random Value6")
+	redBlackTree.insert(533, "Random Value7")
+	redBlackTree.insert(245, "Random Value8")
+
+	print redBlackTree.findKeyNode(20).value
+	print redBlackTree.delete(2).as(not null)
+	print "creating iterator"
+	var iterator3 =  redBlackTree.iterator
+	print "iterator created"
+	var stuffToPrint = " hello"
+	while iterator3.is_ok
+	do
+		iterator3.next		
+		stuffToPrint = iterator3.item.value.to_s + " " + iterator3.item.key.to_s
+		print stuffToPrint
+		
+	end
+	print "ended printing the iterator items"
+
 
