@@ -900,6 +900,55 @@ class RBTree[E:Comparable, T]
 		end
 		deleteCase3(n)
 	end
+	
+	private fun deleteCase3(n:nullable RBNode[E,T])
+	do
+		if not color(n.parent) and not color(n.sibling) and not color(n.sibling.left) and not color(n.sibling.right) then
+			n.sibling.isRed = true
+			deleteCase1(n.parent)
+		else
+			deleteCase4(n)
+		end
+	end
+
+	private fun deleteCase4(n:nullable RBNOde[E,T])
+	do
+		if color(n.parent) and not color(n.sibling) and not color(n.sibling.left) and not color(n.sibling.right) then
+			n.sibling.isRed = true
+			n.parent.isRed = false
+		else
+			deleteCase5(n)
+		end
+	end
+
+	private fun deleteCase5(n:nullable RBNode[E,T])
+	do
+		if n == n.parent.left and not color(n.sibling) and color(n.sibling.left) and not color(n.sibling.right) then
+			n.sibling.isRed = true
+			n.sibling.left.isRed = false
+			rotateRight(n.sibling)
+		else 
+			if n == n.parent.right and not color(n.sibling) and color(n.sibling.right) and not color(n.sibling.left) then
+				n.sibling.isRed = true
+				n.sibling.right.isRed = false
+				rotateLeft(n.sibling)
+			end
+		end
+		deleteCase6(n)
+	end
+
+	private fun deleteCase6(n:nullable RBNode[E,T])
+	do
+		n.sibling.isRed = color(n.parent)
+		n.parent.isRed = false
+		if n == n.parent.left then
+			n.sibling.right.isRed = false
+			rotateLeft(n.parent)
+		else
+			n.sibling.left.isRed = false
+			rotateRight(n.parent)
+		end
+	end
 end
 
 
