@@ -1,32 +1,50 @@
 module binaryTreeExample
 
 import tree
-	var rootNode:BinaryRootNode[Int] = new  BinaryRootNode[Int].withElement(8888)
+	#var rootNode:BinaryNode[Int] = new  BinaryNode[Int](8888)
 	var binaryTree:BinaryTree[Int] = new BinaryTree[Int].withValue(863)
-	rootNode.addLeft(1)
-	rootNode.addRight(2)
-	rootNode.leftChild.addLeft(3)
-	rootNode.leftChild.addRight(4)
-	rootNode.rightChild.addLeft(5)
-	rootNode.rightChild.addRight(6)
-	var element = rootNode.rightChild
-	var element2 = rootNode.leftChild
+	binaryTree.rootNode.addLeft(1)
+	binaryTree.rootNode.addRight(2)
+	binaryTree.rootNode.leftChild.addLeft(3)
+	binaryTree.rootNode.leftChild.addRight(4)
+	binaryTree.rootNode.rightChild.addLeft(5)
+	binaryTree.rootNode.rightChild.addRight(6)
+	var element = binaryTree.rootNode.rightChild
+	var element2 = binaryTree.rootNode.leftChild
 
 	element.leftChild.addLeft(7)
 	element.leftChild.addRight(8)
 	print "Printing the depth of a child Node, should be 1"
 	print element.depth
 
-	print "Testing the Iterator"
-
+	print "Testing the BfsLeft Iterator"
 	var iterator = binaryTree.bfsLeftIterator
 	while iterator.is_ok
 	do
-		
 		print iterator.item.element
 		iterator.next
 	end
-
+	print "Testing the Bfs Right Iterator"
+	var iteratorBfsRight = binaryTree.bfsRightIterator
+	while iteratorBfsRight.is_ok
+	do
+		print iteratorBfsRight.item.element
+		iteratorBfsRight.next
+	end
+	print "Testing the DFS Left Iterator"
+	var iteratorDfsLeft = binaryTree.dfsLeftIterator
+	while iteratorDfsLeft.is_ok
+	do
+		print iteratorDfsLeft.item.element
+		iteratorDfsLeft.next
+	end
+	print "Testing the  DFS Right Iterator"
+	var iteratorDfsRight = binaryTree.dfsRightIterator
+	while iteratorDfsRight.is_ok
+	do
+		print iteratorDfsRight.item.element
+		iteratorDfsRight.next
+	end
 	print "Testing the BinarySearchTree"
 
 
@@ -38,19 +56,17 @@ import tree
 	var listToInsert = new List[Int].from([999,988,867,799,900,690,500,790,400,300,200,111,7544,2553,5266,3456,3464])
 	var vals = 0
 	var vals2 = 9000
-	while vals < 1000
-	do
-		listToInsert.add(vals.rand)
-		vals += 1
-		while vals2 > 8000
-		do
-			listToInsert.add(vals2.rand)
-			vals2 = vals2 - 1
-		end
-		vals2 = 9000
-	end
-
-
+	#while vals < 1000
+	#do
+	#	listToInsert.add(vals.rand)
+	#	vals += 1
+	#	while vals2 > 8000
+	#	do
+	#		listToInsert.add(vals2.rand)
+	#		vals2 = vals2 - 1
+	#	end
+	#	vals2 = 9000
+	#end
 
 	for a in listToInsert do
 		binarySearchT.insert(a)
@@ -70,7 +86,7 @@ import tree
 	do
 		
 		#listSorted.add(iterator2.item.key)
-		#print iterator2.item.key
+		print iterator2.item.key
 		iterator2.next
 	end
 
@@ -106,9 +122,10 @@ import tree
 	var stuffToPrint = " hello"
 	while iterator3.is_ok
 	do
-		iterator3.next		
+			
 		stuffToPrint = iterator3.item.value.to_s + " " + iterator3.item.key.to_s
 		print stuffToPrint
+		iterator3.next	
 		
 	end
 	print "ended printing the iterator items"

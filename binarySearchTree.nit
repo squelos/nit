@@ -220,12 +220,12 @@ abstract class BstIterator[E,T:Comparable]
 	super Iterator[E]
 
 	private var sourceTree:BinarySearchTree[T]
-	private var currentItem:E
+	private var currentItem:nullable E
 	private var nodes:List[E] = new List[E]
 	private var i:Int = 0
 	redef fun is_ok
 	do
-		if i == nodes.length - 1 then 
+		if currentItem == null then 
 			return false
 		else 
 			return true
@@ -237,14 +237,14 @@ abstract class BstIterator[E,T:Comparable]
 
 	end
 
-	redef fun item do return currentItem
+	redef fun item do return currentItem.as(not null) #FIXME sale
 
 	init(tree:BinarySearchTree[T])
 	do
 		sourceTree = tree
 		#tree.buildList(nodes)
 		tree.walkWithList(nodes.as(List[nullable BinarySearchNode[T]]))
-		currentItem = nodes[i]
+		#currentItem = nodes[i]
 		#nodes.add(sourceTree.rootNode)
 	end
 end
@@ -258,6 +258,8 @@ class BstIteratorInOrder[E,T:Comparable]
 		if nodes[i] != null then
 			currentItem = nodes[i]
 			i += 1
+		else
+			currentItem = null
 		end
 		#currentItem = sourceTree.walkWithList(nodes).as(E)
 	end

@@ -29,64 +29,16 @@ abstract class AbstractTree[E]
 end
 
 #Node that has 2 nullable Children
-abstract class BinaryNode[E]
+class BinaryNode[E]
 	super AbstractNode[E]
 	
-	private var _leftChild:nullable BinaryChildNode[E]
-	private var _rightChild:nullable BinaryChildNode[E]
+	private var _leftChild:nullable BinaryNode[E]
+	private var _rightChild:nullable BinaryNode[E]
+	private var _parent:nullable BinaryNode[E]
 
 	private init(elem:E) do
 		_element = elem
 	end
-
-	
-	#Adds a new left child and registers the parent of the child to self
-	fun addLeft(child:E)
-	do
-		_leftChild = new BinaryChildNode[E].withParent(child, self)
-		_leftChild.parent = self
-	end
-
-	#Adds a right child and registers the parent of the child to Self
-	fun addRight(child:E)
-	do
-		_rightChild = new BinaryChildNode[E].withParent(child, self)
-		_leftChild.parent = self
-	end
-	
-	#sets the leftChildNode and sets its parent to self
-	private fun leftChild=(left:nullable BinaryChildNode[E])
-	do
-		_leftChild = left
-		left.parent = self
-	end
-	
-	#returns the left child node
-	fun leftChild:nullable BinaryChildNode[E]
-	do
-		return _leftChild
-	end
-	
-	#Sets the rightChild of this node
-	#also sets the right child's parent to this node(self)
-	private fun rightChild=(right:nullable BinaryChildNode[E])
-	do
-		_rightChild = right
-		right.parent = self
-	end
-
-	#Returns the rightChild of this node
-	fun rightChild:nullable BinaryChildNode[E]
-	do
-		return _rightChild
-	end
-end
-
-
-#Class for the Child Nodes. This one has 2 children (left and right) and a Parent(BinaryNode[E])
-class BinaryChildNode[E]
-	super BinaryNode[E]
-	var _parent:BinaryNode[E]
 
 	#Creates a new BinaryChildNode with a parent
 	private init withParent(elem:E,parentNode:BinaryNode[E])
@@ -97,7 +49,7 @@ class BinaryChildNode[E]
 
 	#creates the left and right node from the values E, and registers them as
 	#children
-	private init withChildren(elem:E,left:E, right:E, parentNode:BinaryNode[E])
+	private init withChildren(elem:E,left:E, right:E, parentNode:nullable BinaryNode[E])
 	do
 		init(elem)
 		addLeft(left)
@@ -108,14 +60,53 @@ class BinaryChildNode[E]
 
 	#initializes with a left child and a parent
 	# The parentSide arg is set to Self 
-	private init withLeft(elem:E,left:nullable BinaryChildNode[E], parentNode:BinaryNode[E])
+	private init withLeft(elem:E,left:nullable BinaryNode[E], parentNode:nullable BinaryNode[E])
 	do
 		init(elem)
 		_leftChild = left
 		_leftChild.parent = self
 		_parent = parentNode
 	end
+	#Adds a new left child and registers the parent of the child to self
+	fun addLeft(child:E)
+	do
+		_leftChild = new BinaryNode[E].withParent(child, self)
+		_leftChild.parent = self
+	end
 
+	#Adds a right child and registers the parent of the child to Self
+	fun addRight(child:E)
+	do
+		_rightChild = new BinaryNode[E].withParent(child, self)
+		_leftChild.parent = self
+	end
+	
+	#sets the leftChildNode and sets its parent to self
+	private fun leftChild=(left:nullable BinaryNode[E])
+	do
+		_leftChild = left
+		left.parent = self
+	end
+	
+	#returns the left child node
+	fun leftChild:nullable BinaryNode[E]
+	do
+		return _leftChild
+	end
+	
+	#Sets the rightChild of this node
+	#also sets the right child's parent to this node(self)
+	private fun rightChild=(right:nullable BinaryNode[E])
+	do
+		_rightChild = right
+		right.parent = self
+	end
+
+	#Returns the rightChild of this node
+	fun rightChild:nullable BinaryNode[E]
+	do
+		return _rightChild
+	end
 
 	private fun parent=(parent:BinaryNode[E])
 	do
@@ -123,7 +114,7 @@ class BinaryChildNode[E]
 	end
 
 	#returns the parent of this child
-	fun parent:BinaryNode[E]
+	fun parent:nullable BinaryNode[E]
 	do
 		return _parent
 	end
@@ -134,39 +125,25 @@ class BinaryChildNode[E]
 	do
 		var depth = 0#Root is 0 depth
 		
-		if depth == 0 and parent isa BinaryRootNode[E] then return 1
-		var par = parent.as(BinaryChildNode[E])
+		if depth == 0 and parent != null then return 1
+		var par = parent
 
-		while par isa BinaryChildNode[E]
+		while par != null
 		do
 			depth += 1
-			if par.parent isa BinaryChildNode[E] then 
-				par = par.parent.as(BinaryChildNode[E])
-			end
-			
+			par = par.parent
 		end
 		return depth
 	end
 end
 
-#has no parent but has 2 children
-class BinaryRootNode[E]
-	super BinaryNode[E]
-
-	init withElement(elem:E)
-	do
-		init(elem)
-	end
-	
-end
 
 #Contains multiple nodes, and starts with a root node
 class BinaryTree[E]
 	#super AbstractTree[E]
-	var rootNode:BinaryRootNode[E]
+	var rootNode:BinaryNode[E]
 	
-	
-	private init(root:BinaryRootNode[E])
+	private init(root:BinaryNode[E])
 	do
 		rootNode = root
 	end
@@ -174,9 +151,8 @@ class BinaryTree[E]
 	#Initializes a Tree with a new root constructed from the value
 	init withValue(value:E)
 	do
-		rootNode = new BinaryRootNode[E].withElement(value)
+		rootNode = new BinaryNode[E](value)
 	end
-
 
 	#returns an iterator using a left depth First Search traverse method
 	fun dfsLeftIterator:TreeIterator[BinaryNode[E],E]
@@ -205,7 +181,7 @@ class BinaryTree[E]
 	#if true, walks to the right, else walks to the left
 	private fun walkDfs(direction:Bool)
 	do
-		var nodesToWalk:List[nullable BinaryChildNode[E]] = new List[nullable BinaryChildNode[E]]
+		var nodesToWalk:List[nullable BinaryNode[E]] = new List[nullable BinaryNode[E]]
 		if direction then #walk right
 			if rootNode.leftChild != null then nodesToWalk.push(rootNode.leftChild)
 			if rootNode.rightChild != null  then nodesToWalk.push(rootNode.rightChild)
@@ -213,7 +189,7 @@ class BinaryTree[E]
 			if rootNode.rightChild != null then nodesToWalk.push(rootNode.rightChild)
 			if rootNode.leftChild != null then nodesToWalk.push(rootNode.leftChild)
 		end
-		rootNode.element.output
+		
 		#print rootNode.element 
 		
 
@@ -237,7 +213,7 @@ class BinaryTree[E]
 					nodesToWalk.push(currentNode.leftChild)
 				end
 			end
-			print currentNode.element
+			
 		end
 
 	end
@@ -245,7 +221,8 @@ class BinaryTree[E]
 
 	private fun walkBfs(direction:Bool)
 	do
-		var nodes = new List[nullable BinaryChildNode[E]]
+		var nodes = new List[nullable BinaryNode[E]]
+		
 		if direction then #walk right
 			if rootNode.leftChild !=  null then nodes.push(rootNode.leftChild)
 			if rootNode.rightChild !=  null then nodes.push(rootNode.rightChild)
@@ -253,8 +230,6 @@ class BinaryTree[E]
 			if rootNode.rightChild != null then nodes.push(rootNode.rightChild)
 			if rootNode.leftChild != null then nodes.push(rootNode.leftChild)
 		end
-
-		print rootNode.element
 
 		while nodes.length > 0
 		do
@@ -274,43 +249,39 @@ class BinaryTree[E]
 					nodes.push(currentNode.leftChild)
 				end
 			end
-			print currentNode.element
+			
 		end
 	end
 
 	#if true, then BFS, else DFS walk
-	private fun walkWithList(direction:Bool, list:List[nullable BinaryNode[E]],bfs:Bool):nullable BinaryNode[E]
+	private fun walkWithList(direction:Bool, list:List[nullable BinaryNode[E]],bfs:Bool)
 	do
-		
-		var currentNode:nullable BinaryNode[E]
-		if list.length > 0 then
-		
-			if bfs then
-				currentNode = list.shift
+		var node:nullable BinaryNode[E]
+		node = rootNode.as(nullable BinaryNode[E])
+		var tmpStack = new List[nullable BinaryNode[E]]
+		loop
+			if node != null then
+				tmpStack.push(node)
+				if direction then
+					 node = node.rightChild
+				else
+					node = node.leftChild
+				end
 			else
-				currentNode = list.pop
-			end
-			if direction then #walk right
-				if currentNode.leftChild !=  null then 
-					list.push(currentNode.leftChild)
-				end
-				if currentNode.rightChild !=  null then 
-					list.push(currentNode.rightChild)
-				end
-			else #walk left
-				if currentNode.rightChild != null then 
-					list.push(currentNode.rightChild)
-				end
-				if currentNode.leftChild != null then 
-					list.push(currentNode.leftChild)
+				if tmpStack.length == 0 then return
+				if bfs then
+					node = tmpStack.shift
+				else				
+					node = tmpStack.pop
+				end 
+				list.push(node)
+				if direction then
+					node = node.leftChild
+				else
+					node = node.rightChild
 				end
 			end
-			#print currentNode.element
-		else
-			currentNode = null
 		end
-		
-		return currentNode
 	end
 end
 
@@ -318,32 +289,28 @@ abstract class TreeIterator[E,T]
 	super Iterator[E]
 	
 	private var sourceTree:BinaryTree[T]
-	private var currentItem:E
+	private var currentItem:nullable E
 	private var nodes:List[nullable BinaryNode[T]] = new List[nullable BinaryNode[T]]
+	private var i:Int = 1
+	private var ok:Bool = false
 
 	#Returns true if the currentItem is not null
 	redef fun is_ok 
 	do
-		if currentItem != null then
-			return true
-		else
-			return false
-		end
+		return ok
 	end
 
 	#Returns the current item
-	redef fun item  do return currentItem
+	redef fun item  do return currentItem.as(not null)
 
 	redef fun next
 	do
 		#we advance the cursor		
 	end
 
-	init(tree:BinaryTree[T])
+	init
 	do
-		sourceTree = tree
-		currentItem = tree.rootNode
-		nodes.add(sourceTree.rootNode)
+
 	end
 end
 
@@ -351,11 +318,25 @@ end
 class TreeIteratorDfsLeft[E,T]
 	super TreeIterator[E,T]
 
-	#advances the cursor to the next node
+	#Advances the cursor to the next node
 	redef fun next
 	do
-		currentItem = sourceTree.walkWithList(false,nodes,false).as(E)
-		#we call the walking method and
+		if i < nodes.length then
+			currentItem = nodes[i]
+			i += 1
+		else
+			ok = false
+		end
+		
+	end
+
+	init(tree:BinaryTree[T])
+	do
+		sourceTree = tree
+		tree.walkWithList(false,nodes.as(List[nullable BinaryNode[E]]),false)
+		
+		currentItem = nodes[0]
+		if nodes[0] != null then ok = true
 	end
 end
 
@@ -363,10 +344,26 @@ end
 class TreeIteratorDfsRight[E,T]
 	super TreeIterator[E,T]
 
-	#advances the cursor to the next node
+	#Advances the cursor to the next node
 	redef fun next
 	do
-		currentItem = sourceTree.walkWithList(true,nodes,false).as(E)
+		if i < nodes.length then
+			currentItem = nodes[i]
+			i += 1
+		else
+			ok = false
+		end
+		
+	end
+
+	init(tree:BinaryTree[T])
+	do
+		
+		sourceTree = tree
+		tree.walkWithList(true,nodes.as(List[nullable BinaryNode[E]]),false)
+		
+		currentItem = nodes[0]
+		if nodes[0] != null then ok = true
 	end
 end
 
@@ -378,7 +375,22 @@ class TreeIteratorBfsLeft[E,T]
 	#Advances the cursor to the next node
 	redef fun next
 	do
-		currentItem = sourceTree.walkWithList(false,nodes,true).as(E)
+		if i < nodes.length then
+			currentItem = nodes[i]
+			i += 1
+		else
+			ok = false
+		end
+		
+	end
+
+	init(tree:BinaryTree[T])
+	do
+		sourceTree = tree
+		tree.walkWithList(false,nodes.as(List[nullable BinaryNode[E]]),true)
+		
+		currentItem = nodes[0]
+		if nodes[0] != null then ok = true
 	end
 end
 
@@ -386,10 +398,25 @@ end
 class TreeIteratorBfsRight[E,T]
 	super TreeIterator[E,T]
 
-	#advances the cursor to the next node
+	#Advances the cursor to the next node
 	redef fun next
 	do
-		currentItem = sourceTree.walkWithList(true,nodes,true).as(E)
+		if i < nodes.length then
+			currentItem = nodes[i]
+			i += 1
+		else
+			ok = false
+		end
+		
+	end
+
+	init(tree:BinaryTree[T])
+	do
+		sourceTree = tree
+		tree.walkWithList(true,nodes.as(List[nullable BinaryNode[E]]),true)
+		
+		currentItem = nodes[0]
+		if nodes[0] != null then ok = true
 	end
 end
 

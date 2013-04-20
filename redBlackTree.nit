@@ -435,16 +435,15 @@ abstract class RBIterator[E,T:Comparable,T2]
 	super Iterator[E]
 
 	private var sourceTree:RBTree[T,T2]
-	private var currentItem:E
+	private var currentItem:nullable E
 	private var nodes:List[E] = new List[E]
-	private var i:Int = 0
+	private var i:Int = 1
+	private var ok:Bool = false
+	
+
 	redef fun is_ok
 	do
-		if i == nodes.length  then 
-			return false
-		else 
-			return true
-		end
+		return ok
 	end
 
 	redef fun next
@@ -452,14 +451,15 @@ abstract class RBIterator[E,T:Comparable,T2]
 
 	end
 
-	redef fun item do return currentItem
+	redef fun item do return currentItem.as(not null)
 
 	init(tree:RBTree[T,T2])
 	do
 		sourceTree = tree
 		#tree.buildList(nodes)
 		tree.walkWithList(nodes.as(List[nullable RBNode[T,T2]]))
-		#currentItem = nodes[0]
+		currentItem = nodes[0]
+		if nodes[0] != null then ok = true
 		#nodes.add(sourceTree.rootNode)
 	end
 end
@@ -467,14 +467,15 @@ end
 class RBIteratorInOrder[E,T:Comparable,T2]
 	super RBIterator[E,T,T2]
 
-	redef fun next 
-
+	#Advances the cursor to the next node
+	redef fun next
 	do
-		#currentItem = nodes[i].as(E)
-		if nodes[i] != null then
+		if i < nodes.length then
 			currentItem = nodes[i]
 			i += 1
+		else
+			ok = false
 		end
-		#currentItem = sourceTree.walkWithList(nodes).as(E)
+		
 	end
 end
