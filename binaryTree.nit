@@ -28,7 +28,7 @@ abstract class AbstractTree[E]
 	var rootNode:AbstractNode[E]
 end
 
-#Node that has 2 nullable Children
+#Node that has 2 nullable Children and a nullable parent
 class BinaryNode[E]
 	super AbstractNode[E]
 	
@@ -55,7 +55,6 @@ class BinaryNode[E]
 		addLeft(left)
 		addRight(right)
 		_parent = parentNode
-		
 	end
 
 	#initializes with a left child and a parent
@@ -108,6 +107,7 @@ class BinaryNode[E]
 		return _rightChild
 	end
 
+	#Sets the parent value
 	private fun parent=(parent:BinaryNode[E])
 	do
 		_parent = parent
@@ -189,14 +189,10 @@ class BinaryTree[E]
 			if rootNode.rightChild != null then nodesToWalk.push(rootNode.rightChild)
 			if rootNode.leftChild != null then nodesToWalk.push(rootNode.leftChild)
 		end
-		
-		#print rootNode.element 
-		
 
 		while nodesToWalk.length >0 
 		do
 			var currentNode = nodesToWalk.pop
-
 			if direction then  #walk right
 				if currentNode.leftChild != null then
 					nodesToWalk.push(currentNode.leftChild)
@@ -204,7 +200,6 @@ class BinaryTree[E]
 				if currentNode.rightChild != null then
 					nodesToWalk.push(currentNode.rightChild)
 				end
-
 			else #walk left
 				if currentNode.rightChild != null then
 					nodesToWalk.push(currentNode.rightChild)
@@ -213,11 +208,8 @@ class BinaryTree[E]
 					nodesToWalk.push(currentNode.leftChild)
 				end
 			end
-			
 		end
-
 	end
-
 
 	private fun walkBfs(direction:Bool)
 	do

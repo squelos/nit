@@ -1,13 +1,17 @@
 module binarySearchTree
 
+#The binarySearchTree class which can be created with an implicit root
 class BinarySearchTree[E:Comparable]
 	var rootNode:BinarySearchNode[E]
 
+	#initializes a new BinarySearchTree with a newly created
+	#root
 	init withImplicitRoot(val:E)
 	do
 		rootNode = new BinarySearchRoot[E](val)
 	end
 
+	#returns null or the BinarySearchNode linked to the specified key
 	fun findKeyNode(key:E):nullable BinarySearchNode[E]
 	do
 		#we start at the rootNode 
@@ -28,11 +32,13 @@ class BinarySearchTree[E:Comparable]
 		return currentNode
 	end
 
+	#returns an iterator that traverses the tree in an inorder fashion
 	fun iterator:BstIteratorInOrder[BinarySearchNode[E],E]
 	do
 		return new BstIteratorInOrder[BinarySearchNode[E],E](self)
 	end
 
+	# inserts a nez node into the tree or returns the existing node
 	fun insert(key:E):BinarySearchNode[E]
 	do
 		return insertHelper(rootNode, key)
@@ -67,6 +73,7 @@ class BinarySearchTree[E:Comparable]
 		
 	end
 
+	#deletes the node linked to the specifie key
 	fun delete(key:E):Bool
 	do
 		if rootNode.key == key then
@@ -101,11 +108,13 @@ class BinarySearchTree[E:Comparable]
 
 end
 
+
 abstract class BinarySearchNode[E:Comparable]
 	var key:E
 	private var _left:nullable BinarySearchChild[E]
 	private var _right:nullable BinarySearchChild[E]
 
+	
 	init(keyValue:E)
 	do
 		key = keyValue
@@ -128,6 +137,7 @@ abstract class BinarySearchNode[E:Comparable]
 		val.parent = self
 	end
 
+	#the right nullable Child
 	fun right:nullable BinarySearchChild[E]
 	do
 		return _right
@@ -188,9 +198,6 @@ end
 
 class BinarySearchRoot[E:Comparable]
 	super BinarySearchNode[E]
-	
-
-	
 end
 
 class BinarySearchChild[E:Comparable]
@@ -242,10 +249,7 @@ abstract class BstIterator[E,T:Comparable]
 	init(tree:BinarySearchTree[T])
 	do
 		sourceTree = tree
-		#tree.buildList(nodes)
 		tree.walkWithList(nodes.as(List[nullable BinarySearchNode[T]]))
-		#currentItem = nodes[i]
-		#nodes.add(sourceTree.rootNode)
 	end
 end
 
