@@ -178,6 +178,18 @@ class BinaryTree[E]
 		return new TreeIteratorBfsRight[BinaryNode[E],E](self)
 	end
 
+	#Returns a new TreeIterator that can traverse the tree in a Post Order Fashion
+	fun PostOrderIterator:TreeIterator[BinaryNode[E],E]
+	do
+		return new TreeIteratorPostOrder[BinaryNode[E],E](self)
+	end
+
+	#Returns a new TreeIterator that can traverse the tree in a Pre Order Fashion
+	fun PreOrderIterator:TreeIterator[BinaryNode[E],E]
+	do
+		return new TreeIteratorPreOrder[BinaryNode[E],E](self)
+	end
+
 	#if true, walks to the right, else walks to the left
 	private fun walkDfs(direction:Bool)
 	do
@@ -275,6 +287,51 @@ class BinaryTree[E]
 			end
 		end
 	end
+
+	private fun walkPreOrder(list:List[nullable BinaryNode[E]])
+	do
+		var node:nullable BinaryNode[E]
+		node = rootNode.as(nullable BinaryNode[E])
+		var tmpStack = new List[nullable BinaryNode[E]]
+		while tmpStack.length != 0 or node != null
+		do
+			if node != null then
+				list.push(node)
+				tmpStack.push(node.rightChild)
+				node = node.leftChild
+			else
+				node = tmpStack.pop
+			end
+		end
+	end
+
+	private fun walkPostOrder(list: List[nullable BinaryNode[E]])
+	do
+		var node:nullable BinaryNode[E]
+		node = rootNode.as(nullable BinaryNode[E])
+		var tmpStack = new List[nullable BinaryNode[E]]
+		var prevNode:nullable BinaryNode[E]
+		tmpStack.push(node)
+		var currNode:nullable BinaryNode[E]
+
+		while tmpStack.length != 0
+		do
+			currNode = tmpStack.last
+			if prevNode == null or prevNode.leftChild == currNode or prevNode.rightChild == currNode then
+				if currNode.leftChild != null then
+					tmpStack.push(currNode.leftChild)
+				else if currNode.rightChild != null then
+					tmpStack.push(currNode.rightChild)
+				end
+			else if currNode.leftChild == prevNode then
+				if currNode.rightChild != null then tmpStack.push(currNode.rightChild)
+			else			
+				list.push(currNode)
+				tmpStack.pop
+			end
+			prevNode = currNode
+		end
+	end
 end
 
 abstract class TreeIterator[E,T]
@@ -297,7 +354,12 @@ abstract class TreeIterator[E,T]
 
 	redef fun next
 	do
-		#we advance the cursor		
+		if i < nodes.length then
+			currentItem = nodes[i]
+			i += 1
+		else
+			ok = false
+		end	
 	end
 
 	init
@@ -309,18 +371,6 @@ end
 #An iterator that uses the Depth First Search Left method for traversal
 class TreeIteratorDfsLeft[E,T]
 	super TreeIterator[E,T]
-
-	#Advances the cursor to the next node
-	redef fun next
-	do
-		if i < nodes.length then
-			currentItem = nodes[i]
-			i += 1
-		else
-			ok = false
-		end
-		
-	end
 
 	init(tree:BinaryTree[T])
 	do
@@ -336,21 +386,8 @@ end
 class TreeIteratorDfsRight[E,T]
 	super TreeIterator[E,T]
 
-	#Advances the cursor to the next node
-	redef fun next
-	do
-		if i < nodes.length then
-			currentItem = nodes[i]
-			i += 1
-		else
-			ok = false
-		end
-		
-	end
-
 	init(tree:BinaryTree[T])
-	do
-		
+	do	
 		sourceTree = tree
 		tree.walkWithList(true,nodes.as(List[nullable BinaryNode[E]]),false)
 		
@@ -363,18 +400,6 @@ end
 #An iterator that uses the Breadth First Search method for traversal
 class TreeIteratorBfsLeft[E,T]
 	super TreeIterator[E,T]
-
-	#Advances the cursor to the next node
-	redef fun next
-	do
-		if i < nodes.length then
-			currentItem = nodes[i]
-			i += 1
-		else
-			ok = false
-		end
-		
-	end
 
 	init(tree:BinaryTree[T])
 	do
@@ -390,18 +415,6 @@ end
 class TreeIteratorBfsRight[E,T]
 	super TreeIterator[E,T]
 
-	#Advances the cursor to the next node
-	redef fun next
-	do
-		if i < nodes.length then
-			currentItem = nodes[i]
-			i += 1
-		else
-			ok = false
-		end
-		
-	end
-
 	init(tree:BinaryTree[T])
 	do
 		sourceTree = tree
@@ -412,3 +425,28 @@ class TreeIteratorBfsRight[E,T]
 	end
 end
 
+class TreeIteratorPostOrder[E,T]
+	super TreeIterator[E,T]
+
+	init(tree:BinaryTree[T])
+	do
+		sourceTree = tree
+		tree.walkPostOrder(nodes.as(List[nullable BinaryNode[E]])
+
+		currentItem = nodes[0]
+		if nodes[0] != null then ok = true
+	end
+end
+
+class TreeIteratorPreOrder[E,T]
+	super TreeIterator[E,T]
+
+	init(tree:BinaryTree[T])
+	do
+		sourceTree = tree
+		tree.walkPreOrder(nodes.as(List[nullable BinaryNode[E]])
+
+		currentItem = nodes[0]
+		if nodes[0] != null then ok = true
+	end
+end

@@ -74,7 +74,6 @@ class RBTree[E:Comparable, T]
 		insertedNode.parent = n
 		insertCase1(insertedNode)
 		return insertedNode
-
 	end
 
 	fun delete(key:E):nullable T
