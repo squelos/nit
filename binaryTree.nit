@@ -179,13 +179,13 @@ class BinaryTree[E]
 	end
 
 	#Returns a new TreeIterator that can traverse the tree in a Post Order Fashion
-	fun PostOrderIterator:TreeIterator[BinaryNode[E],E]
+	fun postOrderIterator:TreeIterator[BinaryNode[E],E]
 	do
 		return new TreeIteratorPostOrder[BinaryNode[E],E](self)
 	end
 
 	#Returns a new TreeIterator that can traverse the tree in a Pre Order Fashion
-	fun PreOrderIterator:TreeIterator[BinaryNode[E],E]
+	fun preOrderIterator:TreeIterator[BinaryNode[E],E]
 	do
 		return new TreeIteratorPreOrder[BinaryNode[E],E](self)
 	end
@@ -310,14 +310,15 @@ class BinaryTree[E]
 		var node:nullable BinaryNode[E]
 		node = rootNode.as(nullable BinaryNode[E])
 		var tmpStack = new List[nullable BinaryNode[E]]
-		var prevNode:nullable BinaryNode[E]
+		var prevNode:nullable BinaryNode[E] = null
 		tmpStack.push(node)
 		var currNode:nullable BinaryNode[E]
 
 		while tmpStack.length != 0
 		do
 			currNode = tmpStack.last
-			if prevNode == null or prevNode.leftChild == currNode or prevNode.rightChild == currNode then
+			if prevNode == null or prevNode.leftChild == currNode or prevNode.
+			rightChild == currNode then
 				if currNode.leftChild != null then
 					tmpStack.push(currNode.leftChild)
 				else if currNode.rightChild != null then
@@ -334,6 +335,7 @@ class BinaryTree[E]
 	end
 end
 
+
 abstract class TreeIterator[E,T]
 	super Iterator[E]
 	
@@ -349,6 +351,11 @@ abstract class TreeIterator[E,T]
 		return ok
 	end
 
+	init
+	do
+
+	end
+
 	#Returns the current item
 	redef fun item  do return currentItem.as(not null)
 
@@ -360,12 +367,7 @@ abstract class TreeIterator[E,T]
 		else
 			ok = false
 		end	
-	end
-
-	init
-	do
-
-	end
+	end	
 end
 
 #An iterator that uses the Depth First Search Left method for traversal
@@ -431,7 +433,7 @@ class TreeIteratorPostOrder[E,T]
 	init(tree:BinaryTree[T])
 	do
 		sourceTree = tree
-		tree.walkPostOrder(nodes.as(List[nullable BinaryNode[E]])
+		tree.walkPostOrder(nodes.as(List[nullable BinaryNode[E]]))
 
 		currentItem = nodes[0]
 		if nodes[0] != null then ok = true
@@ -444,7 +446,7 @@ class TreeIteratorPreOrder[E,T]
 	init(tree:BinaryTree[T])
 	do
 		sourceTree = tree
-		tree.walkPreOrder(nodes.as(List[nullable BinaryNode[E]])
+		tree.walkPreOrder(nodes.as(List[nullable BinaryNode[E]]))
 
 		currentItem = nodes[0]
 		if nodes[0] != null then ok = true
